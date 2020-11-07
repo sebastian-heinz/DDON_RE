@@ -1,5 +1,9 @@
 # DDO Packet notes
 
+Files in ./key_transform are temporary (and non-functional), do not attempt to use them in any capacity.
+
+---
+
 
 ## Byte Layout
 
