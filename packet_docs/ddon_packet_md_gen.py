@@ -58,7 +58,6 @@ with open('GamePackets.md', 'wt', encoding='utf8') as f:
                 req_ver_string = f"{group['GroupID']}_{handler['ID']}_1"
                 res_ver_string = f"{group['GroupID']}_{handler['ID']}_{handler['SubID']}"
                 req_pname = handler['PacketName'].replace(res_ver_string, req_ver_string).removesuffix('_RES') + '_REQ'
-                f.write(f"|{req_pname}|{group['GroupID']}|{handler['ID']}|1|N/A||\n")
                 f.write(f"public static readonly PacketID {req_pname} = new PacketId({group['GroupID']}, {handler['ID']}, 1, \"{req_pname}\");\n")
 
             output_pname = handler['PacketName']
