@@ -69,9 +69,9 @@ with open('GamePackets.md', 'wt', encoding='utf8') as f:
 
 
             if 'HandlerComment' in handler and handler['HandlerComment'] is not None:
-                f.write(f"public static readonly GameServerPacketId {output_pname} = new PacketId({group['GroupID']}, {handler['ID']}, {handler['SubID']}, \"{output_pname}\"); // {handler['HandlerComment']}\n")
+                f.write(f"public static readonly PacketID {output_pname} = new PacketId({group['GroupID']}, {handler['ID']}, {handler['SubID']}, \"{output_pname}\"); // {handler['HandlerComment']}\n")
             else:
-                f.write(f"public static readonly GameServerPacketId {output_pname} = new PacketId({group['GroupID']}, {handler['ID']}, {handler['SubID']}, \"{output_pname}\");\n")
+                f.write(f"public static readonly PacketID {output_pname} = new PacketId({group['GroupID']}, {handler['ID']}, {handler['SubID']}, \"{output_pname}\");\n")
 
         f.write('\n')
 
