@@ -37,7 +37,7 @@ with open('GamePackets.md', 'wt', encoding='utf8') as f:
 
         for handler in group['Handlers']:
             #public static readonly PacketId L2C_GP_COURSE_GET_INFO_RES = new PacketId(4, 0, 2, "L2C_GP_COURSE_GET_INFO_RES");
-            if handler['HandlerComment'] is not None:
+            if 'HandlerComment' in handler and handler['HandlerComment'] is not None:
                 f.write(f"public static readonly GameServerPacketId {handler['PacketName']} = new PacketId({group['GroupID']}, {handler['ID']}, {handler['SubID']}, \"{handler['PacketName']}\"); // {handler['HandlerComment']}\n")
             else:
                 f.write(f"public static readonly GameServerPacketId {handler['PacketName']} = new PacketId({group['GroupID']}, {handler['ID']}, {handler['SubID']}, \"{handler['PacketName']}\");\n")
