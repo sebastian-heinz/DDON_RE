@@ -1,12 +1,9 @@
-# DDO RE notes
+# DDON RE notes
 
-## `/key_transform`
-Contains a non-useful deobfuscation test IDAPython script. This is not functional.
 
-## `/old_packet_id_docs`
-Contains a list of packet names, ids, and handler addresses. However, this is for an unknown older version of the client, and doesn't map well to other versions.
+## `/packet_docs`
+Documentation for the game packets (v03.04.007)
 
-## `/dti`
-Contains DTI-based data dump of the 03.04.007 client (classes + members where available, class <-> file extention map, etc).
+## `/old_data`
+The `/old_data` directory contains old working data / notes for previous versions of the game.
 
-Singleton classes cannot be dumped automatically. Ctrl+f the `dti_dump_log.txt` for "singleton class" to see which classes got skipped. If you need one of these dumped in specific, let me know.
