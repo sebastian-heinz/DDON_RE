@@ -62,7 +62,7 @@ with open('GamePackets.md', 'wt', encoding='utf8') as f:
                 req_pname = handler['PacketName'].replace(res_ver_string, req_ver_string)
                 req_pname = req_pname.removesuffix('_RES') + '_REQ'
                 req_pname = req_pname.replace('S2C', 'C2S')
-                f.write(f"public static readonly PacketID {req_pname} = new PacketId({group['GroupID']}, {handler['ID']}, 1, \"{req_pname}\");\n")
+                f.write(f"public static readonly PacketId {req_pname} = new PacketId({group['GroupID']}, {handler['ID']}, 1, \"{req_pname}\");\n")
 
             output_pname = handler['PacketName']
             if handler['SubID'] == 16 and not output_pname.endswith('_NTC'):
@@ -73,17 +73,48 @@ with open('GamePackets.md', 'wt', encoding='utf8') as f:
 
 
             if 'HandlerComment' in handler and handler['HandlerComment'] is not None:
-                f.write(f"public static readonly PacketID {output_pname} = new PacketId({group['GroupID']}, {handler['ID']}, {handler['SubID']}, \"{output_pname}\"); // {handler['HandlerComment']}\n")
+                f.write(f"public static readonly PacketId {output_pname} = new PacketId({group['GroupID']}, {handler['ID']}, {handler['SubID']}, \"{output_pname}\"); // {handler['HandlerComment']}\n")
             else:
-                f.write(f"public static readonly PacketID {output_pname} = new PacketId({group['GroupID']}, {handler['ID']}, {handler['SubID']}, \"{output_pname}\");\n")
+                f.write(f"public static readonly PacketId {output_pname} = new PacketId({group['GroupID']}, {handler['ID']}, {handler['SubID']}, \"{output_pname}\");\n")
 
         f.write('\n')
-
-    f.write('```')
-        
+    f.write('```\n')
 
 
+    f.write('```cs\n')     
+    f.write('private static Dictionary<int, PacketId> InitializeGamePacketIds()\n')
+    f.write("{\n") 
+    f.write("Dictionary<int, PacketId> packetIds = new Dictionary<int, PacketId>();\n") 
+    f.write("AddPacketIdEntry(packetIds, UNKNOWN);\n") 
+    for group in handler_dump:
+        if group['GroupName'] is not None:
+            f.write(f"// Group: {group['GroupID']} - ({group['GroupName']})\n")
+        else:
+            f.write(f"// Group: {group['GroupID']}\n")
 
+        for handler in group['Handlers']:
+            if handler['SubID'] == 2:
+                # Response packet, forge request packet :)
+                #'abc_5_0_2_RES'.replace('5_0_2', '5_0_1').removesuffix('_RES') + '_REQ'
+                req_ver_string = f"{group['GroupID']}_{handler['ID']}_1"
+                res_ver_string = f"{group['GroupID']}_{handler['ID']}_{handler['SubID']}"
+                req_pname = handler['PacketName'].replace(res_ver_string, req_ver_string)
+                req_pname = req_pname.removesuffix('_RES') + '_REQ'
+                req_pname = req_pname.replace('S2C', 'C2S')
+                f.write(f"AddPacketIdEntry(packetIds, {req_pname});\n") 
+
+            output_pname = handler['PacketName']
+            if handler['SubID'] == 16 and not output_pname.endswith('_NTC'):
+                output_pname += '_NTC'
+
+            if handler['SubID'] == 2 and not output_pname.endswith('_RES'):
+                output_pname += '_RES'
+
+            f.write(f"AddPacketIdEntry(packetIds, {output_pname});\n")
+        f.write('\n')
+    f.write('return packetIds;\n')          
+    f.write('}\n')          
+    f.write('```\n')
 
 
 
