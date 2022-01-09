@@ -6,6 +6,9 @@ with open('ddon_game_packet_handler_dump_notated.json', 'rt', encoding='utf8') a
     handler_dump = json.loads(f.read())
 
 
+with open('packet_writers.json', 'rt', encoding='utf8') as f:
+    packet_writers_dump = json.loads(f.read())
+
 with open('GamePackets.md', 'wt', encoding='utf8') as f:
     f.write('# DDON Game Server Packets (v03.04.007)\n\n')
 
@@ -16,7 +19,7 @@ with open('GamePackets.md', 'wt', encoding='utf8') as f:
         else:
             f.write(f"### Group: {group['GroupID']}\n")
 
-        f.write(f"|Name|GroupID|ID|Sub ID|Handler Address|Comment|\n")
+        f.write(f"|Name|GroupID|ID|Sub ID|Code Address|Comment|\n")
         f.write(f"|---|---|---|---|---|---|\n")
 
         for handler in group['Handlers']:
@@ -28,7 +31,14 @@ with open('GamePackets.md', 'wt', encoding='utf8') as f:
                 req_pname = handler['PacketName'].replace(res_ver_string, req_ver_string)
                 req_pname = req_pname.removesuffix('_RES') + '_REQ'
                 req_pname = req_pname.replace('S2C', 'C2S')
-                f.write(f"|{req_pname}|{group['GroupID']}|{handler['ID']}|1|N/A||\n")
+                writer_addr_str = ''
+                if req_ver_string in packet_writers_dump:
+                    for writer in packet_writers_dump[req_ver_string]:
+                        writer_addr_str += ' / ' + hex(writer['CallAddr'])
+                else:
+                    #print("Missed writer func for:" + req_ver_string)
+                    pass
+                f.write(f"|{req_pname}|{group['GroupID']}|{handler['ID']}|1|{writer_addr_str.removeprefix(' / ')}||\n")
 
             output_pname = handler['PacketName']
             if handler['SubID'] == 16 and not output_pname.endswith('_NTC'):
@@ -43,6 +53,35 @@ with open('GamePackets.md', 'wt', encoding='utf8') as f:
 
 
         f.write('\n\n')
+
+
+
+    f.write("## Python lookup table:\n")
+    f.write('```python\n')
+    f.write('packet_name_table = {\n')
+    for group in handler_dump:
+        for handler in group['Handlers']:
+            if handler['SubID'] == 2:
+                # Response packet, forge request packet :)
+                #'abc_5_0_2_RES'.replace('5_0_2', '5_0_1').removesuffix('_RES') + '_REQ'
+                req_ver_string = f"{group['GroupID']}_{handler['ID']}_1"
+                res_ver_string = f"{group['GroupID']}_{handler['ID']}_{handler['SubID']}"
+                req_pname = handler['PacketName'].replace(res_ver_string, req_ver_string)
+                req_pname = req_pname.removesuffix('_RES') + '_REQ'
+                req_pname = req_pname.replace('S2C', 'C2S')
+                f.write(f"\t'{group['GroupID']}_{handler['ID']}_1': ['{req_pname}'],\n")
+
+            output_pname = handler['PacketName']
+            if handler['SubID'] == 16 and not output_pname.endswith('_NTC'):
+                output_pname += '_NTC'
+
+            if handler['SubID'] == 2 and not output_pname.endswith('_RES'):
+                output_pname += '_RES'
+
+            f.write(f"\t'{group['GroupID']}_{handler['ID']}_{handler['SubID']}': ['{output_pname}'],\n")
+
+    f.write('}\n')
+    f.write('```\n')
 
 
     f.write("## Auto-generated C# code\n")
